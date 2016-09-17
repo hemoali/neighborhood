@@ -6,7 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1">
 	<script type='text/javascript' src='js/jQuery.js'></script>
 
-	<title>Neighborhood Map</title>
+	<title>Sushi Map</title>
 
 	<style>
 		html,
@@ -113,14 +113,51 @@
 			padding: 10px 0;
 			transition: 0.3s;
 		}
+		
 		.list-item.active {
 			color: #b7f42f;
 			background: rgba(255, 255, 255, 0.1);
 		}
+		
 		.list-item:not(.active):hover {
 			color: #fff;
 			transition: 0.3s;
 			background: rgba(255, 255, 255, 0.1);
+		}
+		/*Others*/
+		
+		.overlayDiv {
+			opacity: 0.5;
+			background: #000;
+			width: 100%;
+			height: 100%;
+			z-index: 10;
+			top: 0;
+			left: 0;
+			position: fixed;
+			transition: 125s ease-out;
+		}
+		
+		.info-window-div {
+			max-width: 200px;
+			padding-left: 10px;
+		}
+		
+		.info-window-div p,
+		.info-window-div em,
+		.info-window-div a,
+		.info-window-div strong {
+			display: block;
+			text-align: center;
+		}
+		
+		.info-window-div a {
+			color: #333;
+			font-size: 12px;
+		}
+		.copyrights{
+			color: rgb(198, 191, 191);
+			font-size: 12px;
 		}
 
 	</style>
@@ -128,10 +165,12 @@
 </head>
 
 <body>
+	<div class="overlayDiv"></div>
 
 	<aside id="left_panel">
-		<h1 class="toBeHidden">Friends Locations</h1>
+		<h1 class="toBeHidden">Sushi Locations</h1>
 		<p id="ham-icon" data-bind="click: toggleSideBar">&#9776;</p>
+		<p class="toBeHidden copyrights">Foresquare API used to fetch data</p>
 		<input class="toBeHidden" type="text" id="filter-text" placeholder="Filter...">
 		<button class="toBeHidden" id="filter-button" data-bind="click: changeFilterValue">Filter</button>
 		<!-- / Filter div -->

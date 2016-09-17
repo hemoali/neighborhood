@@ -1,35 +1,39 @@
 /*
 	Locations Data
 */
+var locationsData = new Array();
+//Fetch locations from Foresquare API
+$(document).ready(function () {
+	//Define MVVM
+	var locationsMVVM = new locationsViewModel();
+	ko.applyBindings(locationsMVVM);
 
-var locationsData = [
-	{
-		lat: 40.7213549,
-		lng: -72.9980244,
-		name: 'Ahmed'
-	},
-	{
-		lat: 40.7413219,
-		lng: -71.9980244,
-		name: 'Ali'
-	},
-	{
-		lat: 40.7314219,
-		lng: -73.1980244,
-		name: 'Mohammed'
-	},
-	{
-		lat: 41.7417649,
-		lng: -74.0980244,
-		name: 'Amr'
-	},
-	{
-		lat: 40.7113549,
-		lng: -76.0980244,
-		name: 'Zubair'
-	},
-];
+	$.getJSON("https://api.foursquare.com/v2/venues/search?client_id=4VGSQECE05IIHA1UJQAZPCINAMZYJODD4RNVMG4NSZRAH2ML&client_secret=JH5YXCQ1YGSJXJRCIGJETBNDAPFP5VE42GNM0WJFCLL0EMS5&v=20130815&ll=40.7,-74&query=sushi", function (result) {
+		$.each(result, function (i, field) {
+			if (i === "response") {
+				$.each(field.venues, function (key, resturant) {
+					locationsData.push({
+						lat: resturant.location.lat,
+						lng: resturant.location.lng,
+						name: resturant.name,
+						formattedPhone: resturant.contact.formattedPhone,
+						formattedAddress: resturant.location.formattedAddress,
+						url: resturant.url
+					});
+				});
+			}
+		});
+	}).done(function () {
+		locationsMVVM.init();
+		//Add markers to the map
+		locationsMVVM.addMarkers(bounds);
+		// Hide overlay div
+		$(".overlayDiv").hide(2000);
+	}).fail(function () {
+		alert("Something went wrong, please check your internet connection");
+	});
 
+});
 /*
 	Locations Model
 */
@@ -39,6 +43,9 @@ function locationsModel(location) {
 	self.lat = location.lat;
 	self.lng = location.lng;
 	self.name = location.name;
+	self.formattedPhone = location.formattedPhone;
+	self.formattedAddress = location.formattedAddress;
+	self.url = location.url;
 };
 
 /*
@@ -69,10 +76,10 @@ function locationsViewModel() {
 		locationsData.forEach(function (location) {
 			self.locationsList.push(new locationsModel(location));
 		});
-	}();
+	};
 	/**
-		This computed value filters the locations array and show the markers
-		*/
+	This computed value filters the locations array and show the markers
+	*/
 	self.filterLocations = ko.computed(function () {
 		if (!self.currentFilter()) {
 			return self.locationsList();
@@ -90,22 +97,22 @@ function locationsViewModel() {
 	This function gets called when filter button is clicked in order to change the currentFilter Value
 	*/
 	self.changeFilterValue = function () {
-			self.currentFilter(self.filter_text.value);
-		}
-		/**
-		This function adds the initial markers for all the locations
-		*/
+		self.currentFilter(self.filter_text.value);
+	};
+	/**
+	This function adds the initial markers for all the locations
+	*/
 	self.addMarkers = function (bounds) {
-		ko.utils.arrayForEach(locationsMVVM.locationsList(), function (location, index) {
+		ko.utils.arrayForEach(self.locationsList(), function (location, index) {
 			var marker;
-			locationsMVVM.markers.push(marker = new google.maps.Marker({
+			self.markers.push(marker = new google.maps.Marker({
 				position: {
 					lat: location.lat,
 					lng: location.lng
 				},
 				map: map,
 				id: index,
-				title: location.name,
+				location: location,
 				animation: google.maps.Animation.DROP
 			}));
 			// Conenct the location and marker
@@ -117,6 +124,8 @@ function locationsViewModel() {
 			});
 			bounds.extend(marker.position); // extend map to current marker
 		});
+		//fit the map to all markers 
+		map.fitBounds(bounds);
 	};
 
 
@@ -142,7 +151,9 @@ function locationsViewModel() {
 		self.main.style.width = hide ? "98%" : "80%";
 		google.maps.event.trigger(map, "resize");
 	};
-	//Toggle sidebar view, triggered by hamburger icon
+	/** 
+	This function toggles sidebar view and gets triggered by hamburger icon
+	*/
 	self.toggleSideBar = function () {
 		if (self.left_panel.style.width !== "1%") {
 			self.changeSideBarSize(true);
@@ -152,38 +163,43 @@ function locationsViewModel() {
 		}
 	};
 };
-var locationsMVVM = new locationsViewModel();
-ko.applyBindings(locationsMVVM);
 /*
 	This part initializes the Google map
 */
 var map;
 var largeInfowindow;
+var bounds;
 
 function initMap() {
 	// Constructor creates a new map - only center and zoom are required.
 	map = new google.maps.Map(document.getElementById('map'), {
 		center: {
-			lat: 40.7413549,
-			lng: -73.9980244
+			lat: 40.7,
+			lng: -74
 		},
 		zoom: 13
 	});
 	//Bound to show all markers
-	var bounds = new google.maps.LatLngBounds();
+	bounds = new google.maps.LatLngBounds();
 	largeInfowindow = new google.maps.InfoWindow();
-	locationsMVVM.addMarkers(bounds);
-	//fit the map to all markers 
-	map.fitBounds(bounds);
+
 }
-// This function populates the infowindow when the marker is clicked. We'll only allow
-// one infowindow which will open at the marker that is clicked, and populate based
-// on that markers position.
+/** This function populates the infowindow when the marker is clicked. We'll only allow
+	one infowindow which will open at the marker that is clicked, and populate based
+ 	on that markers position.
+*/
 function populateInfoWindow(marker, infowindow) {
 	// Check to make sure the infowindow is not already opened on this marker.
 	if (infowindow.marker != marker) {
 		infowindow.marker = marker;
-		infowindow.setContent('<div>' + marker.title + marker.id + '</div>');
+		var strVar = "";
+		strVar += "<div class=\"info-window-div\">";
+		strVar += "<strong>"+marker.location.name+"<\/strong>";
+		strVar += "<em>"+marker.location.formattedPhone+"<\/em>";
+		strVar += "<p>"+marker.location.formattedAddress+"<\/p>";
+		strVar += "<a target='_blank' href=\""+marker.location.url+"\">"+marker.location.name+"<\/a>";
+		strVar += "<\/div>";
+		infowindow.setContent(strVar);
 		infowindow.open(map, marker);
 		// Make sure the marker property is cleared if the infowindow is closed.
 		infowindow.addListener('closeclick', function () {
