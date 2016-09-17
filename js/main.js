@@ -1,20 +1,4 @@
 /*
-	This part initializes the Google map to a certain position
-*/
-var map;
-
-function initMap() {
-	// Constructor creates a new map - only center and zoom are required.
-	map = new google.maps.Map(document.getElementById('map'), {
-		center: {
-			lat: 40.7413549,
-			lng: -73.9980244
-		},
-		zoom: 13
-	});
-}
-
-/*
 	Locations Data
 */
 
@@ -69,13 +53,21 @@ function locationsViewModel() {
 	self.items_list = document.getElementById("items-list");
 	self.toBeHiddenElements = document.getElementsByClassName("toBeHidden");
 	self.main = document.getElementById("main");
-	//Fill location data into observableArray
-	self.locationsList = ko.observableArray([]);
-	locationsData.forEach(function (location) {
-		self.locationsList.push(new locationsModel(location));
-	});
 
-	//Toggle sidebar view
+	/**
+		This function initializes the locationListObservable array, and renders the location as markers
+	*/
+	self.init = function () {
+		//Fill location data/markers into observableArrays
+		self.locationsList = ko.observableArray([]);
+		locationsData.forEach(function (location) {
+			self.locationsList.push(new locationsModel(location));
+		});
+	}();
+
+	/**
+		This function resizes the sidebar depending on the hide @param
+	*/
 	self.changeSideBarSize = function (hide) {
 		self.left_panel.style.width = hide ? "1%" : "19%";
 		self.ham_icon.style.width = hide ? "100%" : "10%";
@@ -85,7 +77,8 @@ function locationsViewModel() {
 		self.items_list.style.display = hide ? 'none' : 'block';
 		self.main.style.width = hide ? "98%" : "80%";
 		google.maps.event.trigger(map, "resize");
-	}
+	};
+	//Toggle sidebar view, triggered by hamburger icon
 	self.toggleSideBar = function () {
 		if (self.left_panel.style.width !== "1%") {
 			self.changeSideBarSize(true);
@@ -95,5 +88,61 @@ function locationsViewModel() {
 		}
 	};
 };
+var locationsMVVM = new locationsViewModel();
+ko.applyBindings(locationsMVVM);
+/*
+	This part initializes the Google map to a certain position
+*/
+var map;
+//All markers of locations
+var markers = [];
 
-ko.applyBindings(new locationsViewModel());
+function initMap() {
+	// Constructor creates a new map - only center and zoom are required.
+	map = new google.maps.Map(document.getElementById('map'), {
+		center: {
+			lat: 40.7413549,
+			lng: -73.9980244
+		},
+		zoom: 13
+	});
+	//Bound to show all markers
+	var bounds = new google.maps.LatLngBounds();
+	var largeInfowindow = new google.maps.InfoWindow();
+
+	locationsData.forEach(function (location, index) {
+		var marker;
+		markers.push(marker = new google.maps.Marker({
+			position: {
+				lat: location.lat,
+				lng: location.lng
+			},
+			map: map,
+			id: index,
+			title: location.name,
+			animation: google.maps.Animation.DROP
+		}));
+		// Create an onclick event to open an infowindow at each marker.
+		marker.addListener('click', function () {
+			populateInfoWindow(this, largeInfowindow);
+		});
+		bounds.extend(marker.position); // extend map to current marker
+	});
+	//fit the map to all markers 
+	map.fitBounds(bounds);
+}
+// This function populates the infowindow when the marker is clicked. We'll only allow
+// one infowindow which will open at the marker that is clicked, and populate based
+// on that markers position.
+function populateInfoWindow(marker, infowindow) {
+	// Check to make sure the infowindow is not already opened on this marker.
+	if (infowindow.marker != marker) {
+		infowindow.marker = marker;
+		infowindow.setContent('<div>' + marker.title + marker.id + '</div>');
+		infowindow.open(map, marker);
+		// Make sure the marker property is cleared if the infowindow is closed.
+		infowindow.addListener('closeclick', function () {
+			infowindow.setMarker(null);
+		});
+	}
+}

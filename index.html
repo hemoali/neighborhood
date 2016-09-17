@@ -4,6 +4,7 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<script type='text/javascript' src='js/jQuery.js'></script>
 
 	<title>Neighborhood Map</title>
 
@@ -114,7 +115,7 @@
 		}
 		
 		#items-list li:hover {
-			color:#fff;
+			color: #fff;
 			transition: 0.3s;
 			background: rgba(255, 255, 255, 0.1);
 		}
@@ -129,9 +130,9 @@
 		<h1 class="toBeHidden">Friends Locations</h1>
 		<p id="ham-icon" data-bind="click: toggleSideBar">&#9776;</p>
 		<input class="toBeHidden" type="text" id="filter-text" placeholder="Filter...">
-		<button  class="toBeHidden" id="filter-button">Filter</button>
+		<button class="toBeHidden" id="filter-button">Filter</button>
 		<!-- / Filter div -->
-		<ul data-bind="foreach: locationsList" id="items-list"  class="toBeHidden">
+		<ul data-bind="foreach: locationsList" id="items-list" class="toBeHidden">
 			<li data-bind="text: name"></li>
 		</ul>
 	</aside>
@@ -141,9 +142,8 @@
 
 
 	<!--Scripts-->
-	<script type='text/javascript' src='js/knockout-3.4.0.js'></script>
-
-	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0Lbu6rFXfTfIJ98tE_eT63sL4gpU7zKk&v=3&callback=initMap"></script>
+	<script async defer type='text/javascript' src='js/knockout-3.4.0.js'></script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0Lbu6rFXfTfIJ98tE_eT63sL4gpU7zKk&v=3&callback=initMap" onerror="alert('Something went wrong!!');"></script>
 	<script async defer type='text/javascript' src='js/main.js'></script>
 </body>
 
