@@ -47,16 +47,25 @@ $(window).resize(function () {
 	google.maps.event.trigger(map, "resize");
 	map.fitBounds(bounds);
 });
-
+/**
+This function checks for changes in window size to resize the left panel
+*/
 function checkForWindowSizeAndResizeViews() {
-	if (($(window).width() <= 800 && !locationsMVVM.isSideBarHidden) || ($(window).width() > 800 && locationsMVVM.isSideBarHidden)) {
-		$("#left-panel").toggleClass("left-panel-resized");
-		$("#ham-icon").toggleClass("ham-icon-resized");
-		$(".toBeHidden").toggleClass("toBeHidden-resized");
-		$("#items-list").toggleClass("items-list-resized");
-		$("#main").toggleClass("main-resized");
-		locationsMVVM.isSideBarHidden = !locationsMVVM.isSideBarHidden;
+	if (($(window).width() <= 1140 && !locationsMVVM.isSideBarHidden) || ($(window).width() > 1140 && locationsMVVM.isSideBarHidden)) {
+		toggleLeftPanel();
 	}
+}
+
+/**
+This function toggles the needed classes to show/hide left side bar
+*/
+function toggleLeftPanel() {
+	$("#left-panel").toggleClass("left-panel-resized");
+	$("#ham-icon").toggleClass("ham-icon-resized");
+	$(".toBeHidden").toggleClass("toBeHidden-resized");
+	$("#items-list").toggleClass("items-list-resized");
+	$("#main").toggleClass("main-resized");
+	locationsMVVM.isSideBarHidden = !locationsMVVM.isSideBarHidden;
 }
 /*
 	Locations Model
@@ -170,31 +179,18 @@ function locationsViewModel() {
 		$(event.target).addClass("active");
 		selectMarker(item.marker, largeInfowindow);
 	};
-	/**
-		This function resizes the sidebar depending on the hide @param
-	*/
-	self.changeSideBarSize = function (hide) {
-		self.left_panel.style.width = hide ? "1%" : "19%";
-		self.left_panel.style.paddingLeft = hide ? "0" : "1%";
-		self.ham_icon.style.width = hide ? "100%" : "10%";
-		self.ham_icon.style.margin = hide ? "20px 0px 0px 0px" : "20px 10px 0px 0px";
-		[].forEach.call(self.toBeHiddenElements, function (el) {
-			el.style.display = hide ? 'none' : 'inline-block';
-		});
-		self.items_list.style.display = hide ? 'none' : 'block';
-		self.main.style.width = hide ? "98%" : "80%";
-		google.maps.event.trigger(map, "resize");
-	};
 	/** 
 	This function toggles sidebar view and gets triggered by hamburger icon
 	*/
 	self.toggleSideBar = function () {
-		if (!self.isSideBarHidden) {
-			self.changeSideBarSize(true);
+		if (($(window).width() <= 600 && self.isSideBarHidden)) {
+			$("#left-panel").addClass("left-panel-ontop");
 		} else {
-			self.changeSideBarSize(false);
+			$("#left-panel").removeClass("left-panel-ontop");
 		}
-		self.isSideBarHidden = !self.isSideBarHidden;
+		toggleLeftPanel();
+		google.maps.event.trigger(map, "resize");
+		map.fitBounds(bounds);
 	};
 };
 /*
