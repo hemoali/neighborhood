@@ -47,23 +47,56 @@ function locationsModel(location) {
 
 function locationsViewModel() {
 	var self = this;
+	//All markers of locations
+	self.markers = [];
 	//Views
 	self.left_panel = document.getElementById("left_panel");
 	self.ham_icon = document.getElementById("ham-icon");
 	self.items_list = document.getElementById("items-list");
 	self.toBeHiddenElements = document.getElementsByClassName("toBeHidden");
 	self.main = document.getElementById("main");
+	self.filter_text = document.getElementById("filter-text");
+
+	// property to store the filter
+	self.currentFilter = ko.observable();
 
 	/**
-		This function initializes the locationListObservable array, and renders the location as markers
+		This function initializes the locationListObservable array
 	*/
 	self.init = function () {
-		//Fill location data/markers into observableArrays
+		//Fill location data into observableArray
 		self.locationsList = ko.observableArray([]);
 		locationsData.forEach(function (location) {
 			self.locationsList.push(new locationsModel(location));
 		});
 	}();
+
+	/**
+	This function filters the locations 
+	*/
+	self.filerLocations = function () {
+		hideMarkers();
+		var filterValue = self.filter_text.value; // get the filter value
+		self.currentFilter(filterValue);
+		//Search for matches
+		self.markers.forEach(function (marker) {
+			if (marker.title.indexOf(filterValue) >= 0) marker.setMap(map);
+		});
+	};
+	/**
+	This computed value filters the locations array
+	*/
+	self.filterLocations = ko.computed(function () {
+		if (!self.currentFilter()) {
+			return self.locationsList();
+		} else {
+			return ko.utils.arrayFilter(self.locationsList(), function (location) {
+				if (location.name.indexOf(self.currentFilter()) >= 0) {
+					return true;
+				}
+			});
+		}
+	});
 
 	/**
 		This function resizes the sidebar depending on the hide @param
@@ -94,8 +127,7 @@ ko.applyBindings(locationsMVVM);
 	This part initializes the Google map to a certain position
 */
 var map;
-//All markers of locations
-var markers = [];
+
 
 function initMap() {
 	// Constructor creates a new map - only center and zoom are required.
@@ -112,7 +144,7 @@ function initMap() {
 
 	locationsData.forEach(function (location, index) {
 		var marker;
-		markers.push(marker = new google.maps.Marker({
+		locationsMVVM.markers.push(marker = new google.maps.Marker({
 			position: {
 				lat: location.lat,
 				lng: location.lng
@@ -122,6 +154,8 @@ function initMap() {
 			title: location.name,
 			animation: google.maps.Animation.DROP
 		}));
+		// Conenct the location and marker
+		location.marker = marker;
 		// Create an onclick event to open an infowindow at each marker.
 		marker.addListener('click', function () {
 			populateInfoWindow(this, largeInfowindow);
@@ -145,4 +179,12 @@ function populateInfoWindow(marker, infowindow) {
 			infowindow.setMarker(null);
 		});
 	}
+}
+/**
+	This function hides all visible markers
+*/
+function hideMarkers() {
+	locationsMVVM.markers.forEach(function (marker) {
+		marker.setMap(null);
+	});
 }
