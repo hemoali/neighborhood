@@ -2,15 +2,17 @@
 	Locations Data
 */
 var locationsData = new Array();
-//Fetch locations from Foresquare API
+var locationsMVVM;
+//Fetch locations from Foursquare API
 $(document).ready(function () {
 	//Define MVVM
-	var locationsMVVM = new locationsViewModel();
+	locationsMVVM = new locationsViewModel();
 	ko.applyBindings(locationsMVVM);
 
 	$.getJSON("https://api.foursquare.com/v2/venues/search?client_id=4VGSQECE05IIHA1UJQAZPCINAMZYJODD4RNVMG4NSZRAH2ML&client_secret=JH5YXCQ1YGSJXJRCIGJETBNDAPFP5VE42GNM0WJFCLL0EMS5&v=20130815&ll=40.7,-74&query=sushi", function (result) {
 		$.each(result, function (i, field) {
 			if (i === "response") {
+				//Fill the locationsData array with locations data
 				$.each(field.venues, function (key, resturant) {
 					locationsData.push({
 						lat: resturant.location.lat,
@@ -24,6 +26,7 @@ $(document).ready(function () {
 			}
 		});
 	}).done(function () {
+		// initialize the MVVM on success
 		locationsMVVM.init();
 		//Add markers to the map
 		locationsMVVM.addMarkers(bounds);
@@ -32,8 +35,29 @@ $(document).ready(function () {
 	}).fail(function () {
 		alert("Something went wrong, please check your internet connection");
 	});
+	checkForWindowSizeAndResizeViews();
 
 });
+
+/**
+	Check for window resize to hide the left panel and resize the map
+*/
+$(window).resize(function () {
+	checkForWindowSizeAndResizeViews();
+	google.maps.event.trigger(map, "resize");
+	map.fitBounds(bounds);
+});
+
+function checkForWindowSizeAndResizeViews() {
+	if (($(window).width() <= 800 && !locationsMVVM.isSideBarHidden) || ($(window).width() > 800 && locationsMVVM.isSideBarHidden)) {
+		$("#left-panel").toggleClass("left-panel-resized");
+		$("#ham-icon").toggleClass("ham-icon-resized");
+		$(".toBeHidden").toggleClass("toBeHidden-resized");
+		$("#items-list").toggleClass("items-list-resized");
+		$("#main").toggleClass("main-resized");
+		locationsMVVM.isSideBarHidden = !locationsMVVM.isSideBarHidden;
+	}
+}
 /*
 	Locations Model
 */
@@ -57,7 +81,7 @@ function locationsViewModel() {
 	//All markers of locations
 	self.markers = [];
 	//Views
-	self.left_panel = document.getElementById("left_panel");
+	self.left_panel = document.getElementById("left-panel");
 	self.ham_icon = document.getElementById("ham-icon");
 	self.items_list = document.getElementById("items-list");
 	self.toBeHiddenElements = document.getElementsByClassName("toBeHidden");
@@ -67,6 +91,8 @@ function locationsViewModel() {
 	self.locationsList = ko.observableArray([]);
 	// property to store the filter
 	self.currentFilter = ko.observable();
+	//Variable to track visibility of side bar
+	self.isSideBarHidden = false;
 
 	/**
 		This function initializes the locationListObservable array
@@ -76,29 +102,35 @@ function locationsViewModel() {
 		locationsData.forEach(function (location) {
 			self.locationsList.push(new locationsModel(location));
 		});
+
+	};
+	/**
+		This function hides all visible markers
+	*/
+	self.changeMarkersVisibility = function (visible) {
+		self.markers.forEach(function (marker) {
+			marker.setMap(visible ? map : null);
+		});
 	};
 	/**
 	This computed value filters the locations array and show the markers
 	*/
 	self.filterLocations = ko.computed(function () {
 		if (!self.currentFilter()) {
+			self.changeMarkersVisibility(true);
 			return self.locationsList();
 		} else {
-			hideMarkers();
+			self.changeMarkersVisibility(false);
 			return ko.utils.arrayFilter(self.locationsList(), function (location) {
+				// check if the filter string is contained in the locaiton name
 				if (location.name.toLowerCase().indexOf(self.currentFilter().toLowerCase()) >= 0) {
+					console.log(1);
 					location.marker.setMap(map);
 					return true;
 				}
 			});
 		}
 	});
-	/**
-	This function gets called when filter button is clicked in order to change the currentFilter Value
-	*/
-	self.changeFilterValue = function () {
-		self.currentFilter(self.filter_text.value);
-	};
 	/**
 	This function adds the initial markers for all the locations
 	*/
@@ -143,7 +175,9 @@ function locationsViewModel() {
 	*/
 	self.changeSideBarSize = function (hide) {
 		self.left_panel.style.width = hide ? "1%" : "19%";
+		self.left_panel.style.paddingLeft = hide ? "0" : "1%";
 		self.ham_icon.style.width = hide ? "100%" : "10%";
+		self.ham_icon.style.margin = hide ? "20px 0px 0px 0px" : "20px 10px 0px 0px";
 		[].forEach.call(self.toBeHiddenElements, function (el) {
 			el.style.display = hide ? 'none' : 'inline-block';
 		});
@@ -155,12 +189,12 @@ function locationsViewModel() {
 	This function toggles sidebar view and gets triggered by hamburger icon
 	*/
 	self.toggleSideBar = function () {
-		if (self.left_panel.style.width !== "1%") {
+		if (!self.isSideBarHidden) {
 			self.changeSideBarSize(true);
 		} else {
 			self.changeSideBarSize(false);
-
 		}
+		self.isSideBarHidden = !self.isSideBarHidden;
 	};
 };
 /*
@@ -194,10 +228,10 @@ function populateInfoWindow(marker, infowindow) {
 		infowindow.marker = marker;
 		var strVar = "";
 		strVar += "<div class=\"info-window-div\">";
-		strVar += "<strong>"+marker.location.name+"<\/strong>";
-		strVar += "<em>"+marker.location.formattedPhone+"<\/em>";
-		strVar += "<p>"+marker.location.formattedAddress+"<\/p>";
-		strVar += "<a target='_blank' href=\""+marker.location.url+"\">"+marker.location.name+"<\/a>";
+		strVar += "<strong>" + marker.location.name + "<\/strong>";
+		strVar += "<em>" + marker.location.formattedPhone + "<\/em>";
+		strVar += "<p>" + marker.location.formattedAddress + "<\/p>";
+		strVar += "<a target='_blank' href=\"" + marker.location.url + "\">" + marker.location.name + "<\/a>";
 		strVar += "<\/div>";
 		infowindow.setContent(strVar);
 		infowindow.open(map, marker);
@@ -208,14 +242,7 @@ function populateInfoWindow(marker, infowindow) {
 		});
 	}
 }
-/**
-	This function hides all visible markers
-*/
-function hideMarkers() {
-	locationsMVVM.markers.forEach(function (marker) {
-		marker.setMap(null);
-	});
-}
+
 /**
 	This function changes the marker color when selected either from the left panel or directly from the maps
 */

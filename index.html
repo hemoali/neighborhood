@@ -38,13 +38,14 @@
 		}
 		/*LEFT PANEL*/
 		
-		#left_panel {
+		#left-panel {
 			height: inherit;
 			margin: 0;
 			padding-left: 1%;
 			width: 19%;
 			max-width: 19%;
 			background: #000;
+			min-width: 32px;
 			color: #fff;
 			float: left;
 			overflow-y: auto;
@@ -54,6 +55,7 @@
 			width: 10%;
 			height: 40px;
 			padding: 0;
+			text-align: center;
 			margin: 20px 10px 0px 0px;
 			display: inline-block;
 			float: right;
@@ -67,36 +69,20 @@
 			transition: 0.3s;
 		}
 		
+		.copyrights {
+			color: rgb(198, 191, 191);
+			font-size: 12px;
+		}
+		
 		#filter-text {
 			height: 40px;
-			width: 65%;
+			width: 90%;
 			margin: 0;
 			font-size: 18px;
 			border: 0;
 			padding: 0px 5px;
 			outline: none 0;
 			float: left;
-		}
-		
-		#filter-button {
-			height: 40px;
-			padding: 5px 10px;
-			background: rgb(77, 124, 175);
-			color: #fff;
-			width: 30%;
-			font-size: 18px;
-			margin: 0;
-			font-weight: lighter;
-			cursor: pointer;
-			border: 0;
-			outline: none 0;
-			float: left;
-			transition: 0.3s;
-		}
-		
-		#filter-button:hover {
-			background: rgba(77, 124, 175, 0.9);
-			transition: 0.3s;
 		}
 		
 		#items-list {
@@ -124,7 +110,7 @@
 			transition: 0.3s;
 			background: rgba(255, 255, 255, 0.1);
 		}
-		/*Others*/
+		/*Overlaydiv*/
 		
 		.overlayDiv {
 			opacity: 0.5;
@@ -135,8 +121,9 @@
 			top: 0;
 			left: 0;
 			position: fixed;
-			transition: 125s ease-out;
+			display: none;
 		}
+		/*Info window*/
 		
 		.info-window-div {
 			max-width: 200px;
@@ -155,9 +142,25 @@
 			color: #333;
 			font-size: 12px;
 		}
-		.copyrights{
-			color: rgb(198, 191, 191);
-			font-size: 12px;
+		/*Responsiveness*/
+		
+		.left-panel-resized {
+			width: 20px !important;
+			padding-left: 0 !important;
+		}
+		
+		.ham-icon-resized {
+			width: 100% !important;
+			margin: 20px 0px 0px 0px !important;
+		}
+		
+		.toBeHidden-resized,
+		.items-list-resized {
+			display: none !important;
+		}
+		
+		.main-resized {
+			width: calc(100% - 35px) !important;
 		}
 
 	</style>
@@ -167,12 +170,11 @@
 <body>
 	<div class="overlayDiv"></div>
 
-	<aside id="left_panel">
+	<aside id="left-panel">
 		<h1 class="toBeHidden">Sushi Locations</h1>
 		<p id="ham-icon" data-bind="click: toggleSideBar">&#9776;</p>
 		<p class="toBeHidden copyrights">Foresquare API used to fetch data</p>
-		<input class="toBeHidden" type="text" id="filter-text" placeholder="Filter...">
-		<button class="toBeHidden" id="filter-button" data-bind="click: changeFilterValue">Filter</button>
+		<input class="toBeHidden" data-bind="textInput: currentFilter" type="text" id="filter-text" placeholder="Search locations...">
 		<!-- / Filter div -->
 		<ul data-bind="foreach: filterLocations" id="items-list" class="toBeHidden">
 			<li class="list-item" data-bind="text: name, click: $parent.itemClick"></li>
