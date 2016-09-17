@@ -107,14 +107,17 @@
 			clear: both;
 		}
 		
-		#items-list li {
+		.list-item {
 			font-weight: lighter;
 			cursor: pointer;
 			padding: 10px 0;
 			transition: 0.3s;
 		}
-		
-		#items-list li:hover {
+		.list-item.active {
+			color: #b7f42f;
+			background: rgba(255, 255, 255, 0.1);
+		}
+		.list-item:not(.active):hover {
 			color: #fff;
 			transition: 0.3s;
 			background: rgba(255, 255, 255, 0.1);
@@ -130,10 +133,10 @@
 		<h1 class="toBeHidden">Friends Locations</h1>
 		<p id="ham-icon" data-bind="click: toggleSideBar">&#9776;</p>
 		<input class="toBeHidden" type="text" id="filter-text" placeholder="Filter...">
-		<button class="toBeHidden" id="filter-button" data-bind="click: filerLocations">Filter</button>
+		<button class="toBeHidden" id="filter-button" data-bind="click: changeFilterValue">Filter</button>
 		<!-- / Filter div -->
 		<ul data-bind="foreach: filterLocations" id="items-list" class="toBeHidden">
-			<li data-bind="text: name"></li>
+			<li class="list-item" data-bind="text: name, click: $parent.itemClick"></li>
 		</ul>
 	</aside>
 	<main id="main">

@@ -56,7 +56,8 @@ function locationsViewModel() {
 	self.toBeHiddenElements = document.getElementsByClassName("toBeHidden");
 	self.main = document.getElementById("main");
 	self.filter_text = document.getElementById("filter-text");
-
+	//All locations list
+	self.locationsList = ko.observableArray([]);
 	// property to store the filter
 	self.currentFilter = ko.observable();
 
@@ -65,46 +66,76 @@ function locationsViewModel() {
 	*/
 	self.init = function () {
 		//Fill location data into observableArray
-		self.locationsList = ko.observableArray([]);
 		locationsData.forEach(function (location) {
 			self.locationsList.push(new locationsModel(location));
 		});
 	}();
-
 	/**
-	This function filters the locations 
-	*/
-	self.filerLocations = function () {
-		hideMarkers();
-		var filterValue = self.filter_text.value; // get the filter value
-		self.currentFilter(filterValue);
-		//Search for matches
-		self.markers.forEach(function (marker) {
-			if (marker.title.indexOf(filterValue) >= 0) marker.setMap(map);
-		});
-	};
-	/**
-	This computed value filters the locations array
-	*/
+		This computed value filters the locations array and show the markers
+		*/
 	self.filterLocations = ko.computed(function () {
 		if (!self.currentFilter()) {
 			return self.locationsList();
 		} else {
+			hideMarkers();
 			return ko.utils.arrayFilter(self.locationsList(), function (location) {
-				if (location.name.indexOf(self.currentFilter()) >= 0) {
+				if (location.name.toLowerCase().indexOf(self.currentFilter().toLowerCase()) >= 0) {
+					location.marker.setMap(map);
 					return true;
 				}
 			});
 		}
 	});
+	/**
+	This function gets called when filter button is clicked in order to change the currentFilter Value
+	*/
+	self.changeFilterValue = function () {
+			self.currentFilter(self.filter_text.value);
+		}
+		/**
+		This function adds the initial markers for all the locations
+		*/
+	self.addMarkers = function (bounds) {
+		ko.utils.arrayForEach(locationsMVVM.locationsList(), function (location, index) {
+			var marker;
+			locationsMVVM.markers.push(marker = new google.maps.Marker({
+				position: {
+					lat: location.lat,
+					lng: location.lng
+				},
+				map: map,
+				id: index,
+				title: location.name,
+				animation: google.maps.Animation.DROP
+			}));
+			// Conenct the location and marker
+			location.marker = marker;
+			// Create an onclick event to open an infowindow at each marker.
+			marker.addListener('click', function () {
+				$(".active").removeClass("active");
+				selectMarker(this, largeInfowindow);
+			});
+			bounds.extend(marker.position); // extend map to current marker
+		});
+	};
 
+
+	/**
+		This function gets called when list_item from the left panel gets clicked,
+		it selects the marker on the map which represents the selected item
+	*/
+	self.itemClick = function (item, event) {
+		$(".active").removeClass("active");
+		$(event.target).addClass("active");
+		selectMarker(item.marker, largeInfowindow);
+	};
 	/**
 		This function resizes the sidebar depending on the hide @param
 	*/
 	self.changeSideBarSize = function (hide) {
 		self.left_panel.style.width = hide ? "1%" : "19%";
 		self.ham_icon.style.width = hide ? "100%" : "10%";
-			[].forEach.call(self.toBeHiddenElements, function (el) {
+		[].forEach.call(self.toBeHiddenElements, function (el) {
 			el.style.display = hide ? 'none' : 'inline-block';
 		});
 		self.items_list.style.display = hide ? 'none' : 'block';
@@ -124,10 +155,10 @@ function locationsViewModel() {
 var locationsMVVM = new locationsViewModel();
 ko.applyBindings(locationsMVVM);
 /*
-	This part initializes the Google map to a certain position
+	This part initializes the Google map
 */
 var map;
-
+var largeInfowindow;
 
 function initMap() {
 	// Constructor creates a new map - only center and zoom are required.
@@ -140,28 +171,8 @@ function initMap() {
 	});
 	//Bound to show all markers
 	var bounds = new google.maps.LatLngBounds();
-	var largeInfowindow = new google.maps.InfoWindow();
-
-	locationsData.forEach(function (location, index) {
-		var marker;
-		locationsMVVM.markers.push(marker = new google.maps.Marker({
-			position: {
-				lat: location.lat,
-				lng: location.lng
-			},
-			map: map,
-			id: index,
-			title: location.name,
-			animation: google.maps.Animation.DROP
-		}));
-		// Conenct the location and marker
-		location.marker = marker;
-		// Create an onclick event to open an infowindow at each marker.
-		marker.addListener('click', function () {
-			populateInfoWindow(this, largeInfowindow);
-		});
-		bounds.extend(marker.position); // extend map to current marker
-	});
+	largeInfowindow = new google.maps.InfoWindow();
+	locationsMVVM.addMarkers(bounds);
 	//fit the map to all markers 
 	map.fitBounds(bounds);
 }
@@ -176,6 +187,7 @@ function populateInfoWindow(marker, infowindow) {
 		infowindow.open(map, marker);
 		// Make sure the marker property is cleared if the infowindow is closed.
 		infowindow.addListener('closeclick', function () {
+			$(".active").removeClass("active");
 			infowindow.setMarker(null);
 		});
 	}
@@ -187,4 +199,20 @@ function hideMarkers() {
 	locationsMVVM.markers.forEach(function (marker) {
 		marker.setMap(null);
 	});
+}
+/**
+	This function changes the marker color when selected either from the left panel or directly from the maps
+*/
+function selectMarker(marker, largeInfowindow) {
+	//Bounce the marker
+	if (marker.getAnimation() !== null) {
+		marker.setAnimation(null);
+	} else {
+		marker.setAnimation(google.maps.Animation.BOUNCE);
+		setTimeout(function () {
+			marker.setAnimation(null);
+		}, 1400);
+	}
+	// Show info window
+	populateInfoWindow(marker, largeInfowindow);
 }
