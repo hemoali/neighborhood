@@ -66,6 +66,7 @@ function locationsViewModel() {
 	//Views
 	self.left_panel = document.getElementById("left_panel");
 	self.ham_icon = document.getElementById("ham-icon");
+	self.items_list = document.getElementById("items-list");
 	self.toBeHiddenElements = document.getElementsByClassName("toBeHidden");
 	self.main = document.getElementById("main");
 	//Fill location data into observableArray
@@ -81,6 +82,7 @@ function locationsViewModel() {
 			[].forEach.call(self.toBeHiddenElements, function (el) {
 			el.style.display = hide ? 'none' : 'inline-block';
 		});
+		self.items_list.style.display = hide ? 'none' : 'block';
 		self.main.style.width = hide ? "98%" : "80%";
 		google.maps.event.trigger(map, "resize");
 	}
