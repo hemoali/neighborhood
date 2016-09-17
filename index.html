@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	<title>Neighborhood Map</title>
+
+	<style>
+		html,
+		body {
+			font-family: Helvetica, Arial, sans-serif;
+			height: 100%;
+			margin: 0;
+			padding: 0;
+		}
+		
+		h1 {
+			font-size: 20px;
+			margin-top: 20px;
+			margin-bottom: 30px;
+			display: inline-block;
+			color: rgb(198, 191, 191);
+			width: 80%;
+		}
+		
+		main {
+			margin: 0;
+			width: 80%;
+			height: 100%;
+			float: left;
+		}
+		
+		#map {
+			height: 100%;
+		}
+		/*LEFT PANEL*/
+		
+		#left_panel {
+			height: inherit;
+			margin: 0;
+			padding-left: 1%;
+			width: 19%;
+			max-width: 19%;
+			background: #000;
+			color: #fff;
+			float: left;
+			overflow-y: auto;
+		}
+		
+		#ham-icon {
+			width: 10%;
+			height: 40px;
+			padding: 0;
+			margin: 20px 10px 0px 0px;
+			display: inline-block;
+			float: right;
+			cursor: pointer;
+			vertical-align: middle;
+			transition: 0.3s;
+		}
+		
+		#ham-icon:hover {
+			color: rgb(77, 124, 175);
+			transition: 0.3s;
+		}
+		
+		#filter-text {
+			height: 40px;
+			width: 65%;
+			margin: 0;
+			font-size: 18px;
+			border: 0;
+			padding: 0px 5px;
+			outline: none 0;
+			float: left;
+		}
+		
+		#filter-button {
+			height: 40px;
+			padding: 5px 10px;
+			background: rgb(77, 124, 175);
+			color: #fff;
+			width: 30%;
+			font-size: 18px;
+			margin: 0;
+			font-weight: lighter;
+			cursor: pointer;
+			border: 0;
+			outline: none 0;
+			float: left;
+			transition: 0.3s;
+		}
+		
+		#filter-button:hover {
+			background: rgba(77, 124, 175, 0.9);
+			transition: 0.3s;
+		}
+		
+		#items-list {
+			list-style: none;
+			color: rgb(198, 191, 191);
+			padding: 20px 0;
+			display: block;
+			clear: both;
+		}
+		
+		#items-list li {
+			font-weight: lighter;
+			cursor: pointer;
+			padding: 10px 0;
+			transition: 0.3s;
+		}
+		
+		#items-list li:hover {
+			color:#fff;
+			transition: 0.3s;
+			background: rgba(255, 255, 255, 0.1);
+		}
+
+	</style>
+
+</head>
+
+<body>
+
+	<aside id="left_panel">
+		<h1 class="toBeHidden">Friends Locations</h1>
+		<p id="ham-icon" data-bind="click: toggleSideBar">&#9776;</p>
+		<input class="toBeHidden" type="text" id="filter-text" placeholder="Filter...">
+		<button  class="toBeHidden" id="filter-button">Filter</button>
+		<!-- / Filter div -->
+		<ul data-bind="foreach: locationsList" id="items-list"  class="toBeHidden">
+			<li data-bind="text: name"></li>
+		</ul>
+	</aside>
+	<main id="main">
+		<div id="map"></div>
+	</main>
+
+
+	<!--Scripts-->
+	<script type='text/javascript' src='js/knockout-3.4.0.js'></script>
+
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0Lbu6rFXfTfIJ98tE_eT63sL4gpU7zKk&v=3&callback=initMap"></script>
+	<script async defer type='text/javascript' src='js/main.js'></script>
+</body>
+
+</html>
