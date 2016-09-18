@@ -1,0 +1,170 @@
+html,
+body {
+	font-family: Helvetica, Arial, sans-serif;
+	height: 100%;
+	margin: 0;
+	padding: 0;
+}
+
+h1 {
+	font-size: 20px;
+	margin-top: 20px;
+	margin-bottom: 30px;
+	display: inline-block;
+	color: rgb(198, 191, 191);
+	width: 80%;
+}
+
+main {
+	margin: 0;
+	width: 80%;
+	height: 100%;
+	float: left;
+}
+
+#map {
+	height: 100%;
+}
+
+
+/*LEFT PANEL*/
+
+#left-panel {
+	height: inherit;
+	margin: 0;
+	padding-left: 1%;
+	width: 19%;
+	max-width: 19%;
+	background: #000;
+	min-width: 32px;
+	color: #fff;
+	float: left;
+	overflow-y: auto;
+}
+
+#ham-icon {
+	width: 10%;
+	height: 40px;
+	padding: 0;
+	text-align: center;
+	margin: 20px 10px 0px 0px;
+	display: inline-block;
+	float: right;
+	cursor: pointer;
+	vertical-align: middle;
+	transition: 0.3s;
+}
+
+#ham-icon:hover {
+	color: rgb(77, 124, 175);
+	transition: 0.3s;
+}
+
+.copyrights {
+	color: rgb(198, 191, 191);
+	font-size: 12px;
+}
+
+#filter-text {
+	height: 40px;
+	width: 90%;
+	margin: 0;
+	font-size: 18px;
+	border: 0;
+	padding: 0px 5px;
+	outline: none 0;
+	float: left;
+}
+
+#items-list {
+	list-style: none;
+	color: rgb(198, 191, 191);
+	padding: 20px 0;
+	display: block;
+	clear: both;
+}
+
+.list-item {
+	font-weight: lighter;
+	cursor: pointer;
+	padding: 10px 0;
+	transition: 0.3s;
+}
+
+.list-item.active {
+	color: #b7f42f;
+	background: rgba(255, 255, 255, 0.1);
+}
+
+.list-item:not(.active):hover {
+	color: #fff;
+	transition: 0.3s;
+	background: rgba(255, 255, 255, 0.1);
+}
+
+
+/*Overlaydiv*/
+
+.overlayDiv {
+	opacity: 0.5;
+	background: #000;
+	width: 100%;
+	height: 100%;
+	z-index: 10;
+	top: 0;
+	left: 0;
+	position: fixed;
+}
+
+
+/*Info window*/
+
+.info-window-div {
+	max-width: 200px;
+	padding-left: 10px;
+}
+
+.info-window-div p,
+.info-window-div em,
+.info-window-div a,
+.info-window-div strong {
+	display: block;
+	text-align: center;
+}
+
+.info-window-div a {
+	color: #333;
+	font-size: 12px;
+}
+
+
+/*Responsiveness*/
+
+.left-panel-resized {
+	width: 20px !important;
+	padding-left: 0 !important;
+}
+
+.ham-icon-resized {
+	width: 100% !important;
+	margin: 20px 0px 0px 0px !important;
+}
+
+.toBeHidden-resized,
+.items-list-resized {
+	display: none !important;
+}
+
+.main-resized {
+	width: calc(100% - 35px) !important;
+}
+
+.left-panel-ontop {
+	width: 100% !important;
+	max-width: 100% !important;
+	height: 100%;
+	z-index: 9;
+	top: 0;
+	left: 0;
+	position: fixed;
+}
