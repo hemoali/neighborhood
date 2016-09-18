@@ -1,3 +1,4 @@
+'use strict';
 /*
 	Locations Data
 */
@@ -67,7 +68,7 @@ function locationsViewModel() {
     //All markers of locations
     self.markers = [];
     //All locations list
-    self.locationsList = ko.observableArray([]);
+    self.locationsList = ko.observableArray();
     // property to store the filter
     self.currentFilter = ko.observable();
     //window width to toggle fullscreen leftpanel
@@ -85,7 +86,6 @@ function locationsViewModel() {
             }
         }
     };
-
 
     /**
     	This function initializes the locationListObservable array
@@ -232,7 +232,6 @@ function populateInfoWindow(marker, infowindow) {
         });
     }
 }
-
 /**
 	This function changes the marker color when selected either from the left panel or directly from the maps
 */

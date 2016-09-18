@@ -2,35 +2,35 @@
 <html lang="en">
 
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Sushi Map</title>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>Sushi Map</title>
 
-    <script type='text/javascript' src='https://code.jquery.com/jquery-3.1.0.min.js'></script>
-    <link rel="stylesheet" type="text/css" href="css/style.css">
+	<script src="https://code.jquery.com/jquery-3.1.0.min.js"></script>
+	<link rel="stylesheet" href="css/style.css">
 </head>
 
 <body>
-    <div class="overlayDiv"></div>
+	<div class="overlayDiv"></div>
 
-    <aside id="left-panel" data-bind="css:{'left-panel-ontop': checkKeepLeftPanelOnTop(), 'left-panel-resized': isSideBarHidden()}">
-        <h1 class="toBeHidden" data-bind="css:{'toBeHidden-resized': isSideBarHidden()}">Sushi Locations</h1>
-        <p id="ham-icon" data-bind="click: function(){isSideBarHidden(!isSideBarHidden());}, css:{'ham-icon-resized': isSideBarHidden()}">&#9776;</p>
-        <p class="toBeHidden copyrights" data-bind="css:{'toBeHidden-resized': isSideBarHidden()}">Foresquare API used to fetch data</p>
-        <input class="toBeHidden" data-bind="textInput: currentFilter, css:{'toBeHidden-resized': isSideBarHidden()}" type="text" id="filter-text" placeholder="Search locations...">
-        <!-- / Filter div -->
-        <ul data-bind="foreach: filterLocations, css:{'items-list-resized': isSideBarHidden()}" id="items-list" class="toBeHidden">
-            <li class="list-item" data-bind="text: name, click: $parent.itemClick, css:{'active': $data.selected()}, setFocus:$data.selected()"></li>
-        </ul>
-    </aside>
-    <main id="main" data-bind="css:{'main-resized': isSideBarHidden()}">
-        <div id="map"></div>
-    </main>
+	<aside id="left-panel" class="left-panel" data-bind="css:{'left-panel-ontop': checkKeepLeftPanelOnTop(), 'left-panel-resized': isSideBarHidden()}">
+		<h1 class="toBeHidden" data-bind="css:{'toBeHidden-resized': isSideBarHidden()}">Sushi Locations</h1>
+		<p id="ham-icon" class="ham-icon" data-bind="click: function(){isSideBarHidden(!isSideBarHidden());}, css:{'ham-icon-resized': isSideBarHidden()}">&#9776;</p>
+		<p class="toBeHidden copyrights" data-bind="css:{'toBeHidden-resized': isSideBarHidden()}">Foresquare API used to fetch data</p>
+		<input class="toBeHidden filter-text" data-bind="textInput: currentFilter, css:{'toBeHidden-resized': isSideBarHidden()}" type="text" id="filter-text" placeholder="Search locations...">
+		<!-- / Filter div -->
+		<ul data-bind="foreach: filterLocations, css:{'items-list-resized': isSideBarHidden()}" id="items-list" class="toBeHidden items-list">
+			<li class="list-item" data-bind="text: name, click: $parent.itemClick, css:{'active': $data.selected()}, setFocus:$data.selected()"></li>
+		</ul>
+	</aside>
+	<main id="main" data-bind="css:{'main-resized': isSideBarHidden()}">
+		<div id="map"></div>
+	</main>
 
-    <!--Scripts-->
-    <script type='text/javascript' src='https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.3.0.js'></script>
-    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0Lbu6rFXfTfIJ98tE_eT63sL4gpU7zKk&v=3&callback=initMap" onerror="alert('Something went wrong!!');"></script>
-    <script type='text/javascript' src='js/main.js'></script>
+	<!--Scripts-->
+	<script type="text/javascript" src="https://ajax.aspnetcdn.com/ajax/knockout/knockout-3.3.0.js"></script>
+	<script src="js/main.js"></script>
+	<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyC0Lbu6rFXfTfIJ98tE_eT63sL4gpU7zKk&v=3&callback=initMap" onerror="alert('Something went wrong!!');"></script>
 </body>
 
 </html>
