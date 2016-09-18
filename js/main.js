@@ -55,6 +55,7 @@ function checkForWindowSizeAndResizeViews() {
 This function toggles the needed classes to show/hide left side bar
 */
 function toggleLeftPanel() {
+	// ToDo: Remove the DOM manipulation
 	$("#left-panel").toggleClass("left-panel-resized");
 	$("#ham-icon").toggleClass("ham-icon-resized");
 	$(".toBeHidden").toggleClass("toBeHidden-resized");
@@ -74,6 +75,7 @@ function locationsModel(location) {
 	self.formattedPhone = location.formattedPhone;
 	self.formattedAddress = location.formattedAddress;
 	self.url = location.url;
+	self.selected = ko.observable(false);
 }
 
 /**
@@ -83,13 +85,6 @@ function locationsViewModel() {
 	var self = this;
 	//All markers of locations
 	self.markers = [];
-	//Views
-	self.left_panel = document.getElementById("left-panel");
-	self.ham_icon = document.getElementById("ham-icon");
-	self.items_list = document.getElementById("items-list");
-	self.toBeHiddenElements = document.getElementsByClassName("toBeHidden");
-	self.main = document.getElementById("main");
-	self.filter_text = document.getElementById("filter-text");
 	//All locations list
 	self.locationsList = ko.observableArray([]);
 	// property to store the filter
@@ -127,7 +122,6 @@ function locationsViewModel() {
 			return ko.utils.arrayFilter(self.locationsList(), function (location) {
 				// check if the filter string is contained in the locaiton name
 				if (location.name.toLowerCase().indexOf(self.currentFilter().toLowerCase()) >= 0) {
-					console.log(1);
 					location.marker.setMap(map);
 					return true;
 				}
@@ -152,7 +146,8 @@ function locationsViewModel() {
 			}));
 			// Conenct the location and marker
 			location.marker = marker;
-			// Create an onclick event to open an infowindow at each marker.
+			// ToDo: Remove the DOM manipulation
+			//Create an onclick event to open an infowindow at each marker.
 			marker.addListener('click', function () {
 				$(".active").removeClass("active");
 				selectMarker(this, largeInfowindow);
@@ -169,14 +164,22 @@ function locationsViewModel() {
 		it selects the marker on the map which represents the selected item
 	*/
 	self.itemClick = function (item, event) {
-		$(".active").removeClass("active");
-		$(event.target).addClass("active");
+
+		//Reset all locations to not selected
+		ko.utils.arrayForEach(self.locationsList(), function (location, index) {
+			location.selected(false);
+		});
+		//Select the clicked item
+		item.selected(true);
+
+		//Select the marker of the selected location
 		selectMarker(item.marker, largeInfowindow);
 	};
 	/** 
 	This function toggles sidebar view and gets triggered by hamburger icon
 	*/
 	self.toggleSideBar = function () {
+		// ToDo: Remove the DOM manipulation
 		if (($(window).width() <= 600 && self.isSideBarHidden)) {
 			$("#left-panel").addClass("left-panel-ontop");
 		} else {
@@ -233,7 +236,6 @@ function populateInfoWindow(marker, infowindow) {
 		infowindow.open(map, marker);
 		// Make sure the marker property is cleared if the infowindow is closed.
 		infowindow.addListener('closeclick', function () {
-			$(".active").removeClass("active");
 			infowindow.setMarker(null);
 		});
 	}

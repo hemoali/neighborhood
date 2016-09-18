@@ -20,7 +20,7 @@
 		<input class="toBeHidden" data-bind="textInput: currentFilter" type="text" id="filter-text" placeholder="Search locations...">
 		<!-- / Filter div -->
 		<ul data-bind="foreach: filterLocations" id="items-list" class="toBeHidden">
-			<li class="list-item" data-bind="text: name, click: $parent.itemClick"></li>
+			<li class="list-item" data-bind="text: name, click: $parent.itemClick, css:{'active': $data.selected()}"></li>
 		</ul>
 	</aside>
 	<main id="main">
