@@ -76,6 +76,17 @@ function locationsViewModel() {
 	self.isSideBarHidden = ko.observable(self.windowWidth() <= 600 ? true : false);
 
 
+	ko.bindingHandlers.setFocus = {
+		update: function (element, valueAccessor, allBindingsAccessor) {
+			if (valueAccessor()) {
+				$('#left-panel').animate({
+					scrollTop: $(element).position().top
+				}, 500);
+			}
+		}
+	};
+
+
 	/**
 		This function initializes the locationListObservable array
 	*/
@@ -130,7 +141,6 @@ function locationsViewModel() {
 			}));
 			// Conenct the location and marker
 			location.marker = marker;
-			// ToDo: Remove the DOM manipulation
 			//Create an onclick event to open an infowindow at each marker.
 			marker.addListener('click', function () {
 				self.selectOnlyOneLocation(location);
@@ -217,7 +227,9 @@ function populateInfoWindow(marker, infowindow) {
 		infowindow.open(map, marker);
 		// Make sure the marker property is cleared if the infowindow is closed.
 		infowindow.addListener('closeclick', function () {
-			infowindow.setMarker(null);
+			marker.location.selected(false);
+			console.log(marker.location);
+			//infowindow.setMarker(null);
 		});
 	}
 }
