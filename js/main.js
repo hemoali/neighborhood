@@ -31,38 +31,19 @@ function loadDataFromAPI() {
 	}).fail(function () {
 		alert("Something went wrong, please check your internet connection");
 	});
-	checkForWindowSizeAndResizeViews();
 }
 
 /**
 	Check for window resize to hide the left panel and resize the map
 */
 $(window).resize(function () {
-	checkForWindowSizeAndResizeViews();
+	//checkForWindowSizeAndResizeViews();
 	google.maps.event.trigger(map, "resize");
 	map.fitBounds(bounds);
-});
-/**
-This function checks for changes in window size to resize the left panel
-*/
-function checkForWindowSizeAndResizeViews() {
-	if (($(window).width() <= 1140 && !locationsMVVM.isSideBarHidden) || ($(window).width() > 1140 && locationsMVVM.isSideBarHidden)) {
-		toggleLeftPanel();
-	}
-}
 
-/**
-This function toggles the needed classes to show/hide left side bar
-*/
-function toggleLeftPanel() {
-	// ToDo: Remove the DOM manipulation
-	$("#left-panel").toggleClass("left-panel-resized");
-	$("#ham-icon").toggleClass("ham-icon-resized");
-	$(".toBeHidden").toggleClass("toBeHidden-resized");
-	$("#items-list").toggleClass("items-list-resized");
-	$("#main").toggleClass("main-resized");
-	locationsMVVM.isSideBarHidden = !locationsMVVM.isSideBarHidden;
-}
+	// Update the VM windowWidth property
+	locationsMVVM.windowWidth($(window).width());
+});
 
 /**
 	Locations Model
@@ -89,8 +70,11 @@ function locationsViewModel() {
 	self.locationsList = ko.observableArray([]);
 	// property to store the filter
 	self.currentFilter = ko.observable();
+	//window width to toggle fullscreen leftpanel
+	self.windowWidth = ko.observable($(window).width());
 	//Variable to track visibility of side bar
-	self.isSideBarHidden = false;
+	self.isSideBarHidden = ko.observable(self.windowWidth() <= 600 ? true : false);
+
 
 	/**
 		This function initializes the locationListObservable array
@@ -149,7 +133,7 @@ function locationsViewModel() {
 			// ToDo: Remove the DOM manipulation
 			//Create an onclick event to open an infowindow at each marker.
 			marker.addListener('click', function () {
-				$(".active").removeClass("active");
+				self.selectOnlyOneLocation(location);
 				selectMarker(this, largeInfowindow);
 			});
 			bounds.extend(marker.position); // extend map to current marker
@@ -164,30 +148,27 @@ function locationsViewModel() {
 		it selects the marker on the map which represents the selected item
 	*/
 	self.itemClick = function (item, event) {
+		//Select the clicked item only
+		self.selectOnlyOneLocation(item);
+		//Select the marker of the selected location
+		selectMarker(item.marker, largeInfowindow);
+	};
 
+	/**	
+	This function resets all locations to non-selected
+	*/
+	self.selectOnlyOneLocation = function (item) {
 		//Reset all locations to not selected
 		ko.utils.arrayForEach(self.locationsList(), function (location, index) {
 			location.selected(false);
 		});
-		//Select the clicked item
 		item.selected(true);
-
-		//Select the marker of the selected location
-		selectMarker(item.marker, largeInfowindow);
 	};
-	/** 
-	This function toggles sidebar view and gets triggered by hamburger icon
+	/**
+		This function returns to the css binding to add left-panel-ontop class to the left-panel when the screen size is small and the left panel is opened 
 	*/
-	self.toggleSideBar = function () {
-		// ToDo: Remove the DOM manipulation
-		if (($(window).width() <= 600 && self.isSideBarHidden)) {
-			$("#left-panel").addClass("left-panel-ontop");
-		} else {
-			$("#left-panel").removeClass("left-panel-ontop");
-		}
-		toggleLeftPanel();
-		google.maps.event.trigger(map, "resize");
-		map.fitBounds(bounds);
+	self.checkKeepLeftPanelOnTop = function () {
+		return (self.windowWidth() <= 600 && !self.isSideBarHidden());
 	};
 }
 /*

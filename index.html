@@ -13,17 +13,17 @@
 <body>
 	<div class="overlayDiv"></div>
 
-	<aside id="left-panel">
-		<h1 class="toBeHidden">Sushi Locations</h1>
-		<p id="ham-icon" data-bind="click: toggleSideBar">&#9776;</p>
-		<p class="toBeHidden copyrights">Foresquare API used to fetch data</p>
-		<input class="toBeHidden" data-bind="textInput: currentFilter" type="text" id="filter-text" placeholder="Search locations...">
+	<aside id="left-panel" data-bind="css:{'left-panel-ontop': checkKeepLeftPanelOnTop(), 'left-panel-resized': isSideBarHidden()}">
+		<h1 class="toBeHidden" data-bind="css:{'toBeHidden-resized': isSideBarHidden()}">Sushi Locations</h1>
+		<p id="ham-icon" data-bind="click: function(){isSideBarHidden(!isSideBarHidden());}, css:{'ham-icon-resized': isSideBarHidden()}">&#9776;</p>
+		<p class="toBeHidden copyrights" data-bind="css:{'toBeHidden-resized': isSideBarHidden()}">Foresquare API used to fetch data</p>
+		<input class="toBeHidden" data-bind="textInput: currentFilter, css:{'toBeHidden-resized': isSideBarHidden()}" type="text" id="filter-text" placeholder="Search locations...">
 		<!-- / Filter div -->
-		<ul data-bind="foreach: filterLocations" id="items-list" class="toBeHidden">
-			<li class="list-item" data-bind="text: name, click: $parent.itemClick, css:{'active': $data.selected()}"></li>
+		<ul data-bind="foreach: filterLocations, css:{'items-list-resized': isSideBarHidden()}" id="items-list" class="toBeHidden">
+			<li class="list-item" data-bind="text: name, click: function(){$parent.itemClick; setFocus: {}}, css:{'active': $data.selected()}"></li>
 		</ul>
 	</aside>
-	<main id="main">
+	<main id="main" data-bind="css:{'main-resized': isSideBarHidden()}">
 		<div id="map"></div>
 	</main>
 
